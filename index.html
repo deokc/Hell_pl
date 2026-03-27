@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hell Playlist</title>
+    <style>
+        :root {
+            --bg-deep: #0f0202;
+            --card-bg: rgba(45, 10, 10, 0.7);
+            --theme-red: #ff3333;
+            --theme-accent: #ff6666;
+            --text-main: #ffffff;
+            --text-dim: #d1b3b3;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background-color: var(--bg-deep);
+            background-image: radial-gradient(circle at 50% 50%, #2b0505 0%, #0f0202 100%);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; 
+        }
+
+        .main-container {
+            display: flex;
+            width: 90%;
+            max-width: 1100px;
+            height: 600px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+        }
+
+        .player-left {
+            flex: 1.2;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .album-cover {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #111;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .album-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+        .now-playing-info h2 {
+            margin: 0; font-size: 1.8rem; letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .now-playing-info p {
+            color: var(--theme-accent); margin: 8px 0 10px; font-size: 1rem; 
+            font-weight: 600; text-transform: uppercase;
+        }
+
+        /* 곡 설명 스타일 */
+        .track-desc {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            min-height: 3em; /* 텍스트가 없어도 공간 유지 */
+        }
+
+        .audio-controls { width: 100%; }
+        
+        .progress-area {
+            height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px;
+            margin-bottom: 25px; cursor: pointer;
+        }
+
+        .progress-bar {
+            height: 100%; background: var(--theme-red);
+            width: 0%; box-shadow: 0 0 10px var(--theme-red); border-radius: 3px;
+        }
+
+        .buttons { display: flex; align-items: center; gap: 30px; justify-content: center; }
+
+        .btn {
+            background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem;
+            transition: 0.2s; opacity: 0.8;
+        }
+        .btn:hover { opacity: 1; transform: scale(1.1); color: var(--theme-accent); }
+        .play-btn { font-size: 3.2rem; opacity: 1; color: var(--theme-red); }
+
+        .playlist-right {
+            flex: 1;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .playlist-header {
+            font-size: 1.2rem; font-weight: 800; margin-bottom: 20px;
+            padding-bottom: 15px; border-bottom: 1px solid rgba(255, 51, 51, 0.4);
+            color: var(--theme-accent);
+        }
+
+        .track-list {
+            list-style: none; padding: 0; margin: 0;
+            overflow-y: auto; flex-grow: 1;
+        }
+
+        .track-list::-webkit-scrollbar { width: 6px; }
+        .track-list::-webkit-scrollbar-thumb { background: var(--theme-red); border-radius: 10px; }
+
+        .track-item {
+            display: flex; align-items: center; padding: 14px;
+            border-radius: 12px; cursor: pointer; transition: 0.2s;
+            margin-bottom: 8px; background: rgba(255, 255, 255, 0.02);
+        }
+
+        .track-item:hover { background: rgba(255, 0, 0, 0.1); }
+
+        .track-item.active {
+            background: rgba(255, 0, 0, 0.15);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .track-number { width: 35px; color: var(--theme-accent); font-weight: bold; }
+        .track-title { flex: 1; font-size: 1rem; font-weight: 500; }
+        .track-duration { color: var(--text-dim); font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            body { height: auto; min-height: 100vh; overflow-y: auto; align-items: flex-start; padding: 20px 0; }
+            .main-container { flex-direction: column; height: auto; width: 92%; }
+            .player-left { flex: unset; padding: 25px; border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+            .playlist-right { flex: unset; padding: 25px; height: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="player-left">
+        <div class="album-cover">
+            <img src="https://raw.githubusercontent.com/deokc/Hell_pl/refs/heads/main/hell01.png" id="mainArt">
+        </div>
+        <div class="now-playing-info">
+            <h2 id="displayTitle">곡을 선택하세요</h2>
+            <p id="displayAlbum">Hell Playlist</p>
+            <div class="track-desc" id="displayDesc">지옥... 대기 중...</div>
+        </div>
+        <div class="audio-controls">
+            <div class="progress-area" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="buttons">
+                <button class="btn" onclick="prevTrack()">&#x23EE;</button>
+                <button class="btn play-btn" id="playBtn" onclick="togglePlay()">&#x23F5;</button>
+                <button class="btn" onclick="nextTrack()">&#x23ED;</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="playlist-right">
+        <div class="playlist-header">LIST OF SONGS</div>
+        <ul class="track-list" id="trackList"></ul>
+    </div>
+</div>
+
+<audio id="mainAudio"></audio>
+
+<script>
+    const playlist = [
+        {
+            title: "지옥.. 그곳은..",
+            link: "https://raw.githubusercontent.com/deokc/Hell_pl/main/%EC%A7%80%EC%98%A5..%20%EA%B7%B8%EA%B3%B3%EC%9D%80..02.mp3",
+            duration: "1:06",
+            desc: "지옥은.. 이런 곳일까."
+        },
+        {
+            title: "Welcome To Hell!",
+            link: "https://raw.githubusercontent.com/deokc/Hell_pl/main/Welcome%20To%20Hell!_02.mp3",
+            duration: "3:38",
+            desc: "그래그래~ 지옥에 어서 오고, 줄은 저~어기 서면 된단다 ^_^"
+        },
+        {
+            title: "하급 악마는 바빠요",
+            link: "https://raw.githubusercontent.com/deokc/Hell_pl/main/%ED%95%98%EA%B8%89%20%EC%95%85%EB%A7%88%EB%8A%94%20%EB%B0%94%EB%B9%A0%EC%9A%94_03.mp3",
+            duration: "3:07",
+            desc: "일에 이리저리 치이는 하급 악마들의 경쾌한(?) 노동요."
+        },
+        {
+            title: "King of Hell",
+            link: "https://raw.githubusercontent.com/deokc/Hell_pl/main/King%20of%20Hell_04.mp3",
+            duration: "3:21",
+            desc: "번아웃 온 루시퍼의 도망치고 싶은 마음을 담아낸 곡."
+        }
+    ];
+
+    const audio = document.getElementById('mainAudio');
+    const trackListElem = document.getElementById('trackList');
+    const playBtn = document.getElementById('playBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressContainer = document.getElementById('progressContainer');
+    const displayTitle = document.getElementById('displayTitle');
+    const displayDesc = document.getElementById('displayDesc');
+
+    let currentIndex = 0;
+
+    function renderPlaylist() {
+        trackListElem.innerHTML = '';
+        playlist.forEach((track, index) => {
+            const li = document.createElement('li');
+            li.className = `track-item ${index === currentIndex ? 'active' : ''}`;
+            li.innerHTML = `
+                <span class="track-number">${index + 1}</span>
+                <span class="track-title">${track.title}</span>
+                <span class="track-duration">${track.duration}</span>
+            `;
+            li.onclick = () => loadTrack(index);
+            trackListElem.appendChild(li);
+        });
+    }
+
+    function loadTrack(index) {
+        currentIndex = index;
+        const track = playlist[index];
+        audio.src = track.link;
+        displayTitle.textContent = track.title;
+        displayDesc.textContent = track.desc; // 설명 업데이트
+        renderPlaylist();
+        audio.play();
+        playBtn.innerHTML = "&#x23F8;";
+    }
+
+    function togglePlay() {
+        if (audio.paused) {
+            if (!audio.src) loadTrack(0);
+            else { audio.play(); playBtn.innerHTML = "&#x23F8;"; }
+        } else {
+            audio.pause();
+            playBtn.innerHTML = "&#x23F5;";
+        }
+    }
+
+    function nextTrack() { currentIndex = (currentIndex + 1) % playlist.length; loadTrack(currentIndex); }
+    function prevTrack() { currentIndex = (currentIndex - 1 + playlist.length) % playlist.length; loadTrack(currentIndex); }
+
+    audio.ontimeupdate = () => {
+        if (!isNaN(audio.duration)) {
+            const pct = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = pct + "%";
+        }
+    };
+
+    progressContainer.onclick = (e) => {
+        const width = progressContainer.clientWidth;
+        const clickX = e.offsetX;
+        audio.currentTime = (clickX / width) * audio.duration;
+    };
+
+    audio.onended = nextTrack;
+    renderPlaylist();
+</script>
+</body>
+</html>
