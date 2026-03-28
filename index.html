@@ -71,13 +71,12 @@
             font-weight: 600; text-transform: uppercase;
         }
 
-        /* 곡 설명 스타일 */
         .track-desc {
             color: var(--text-dim);
             font-size: 0.95rem;
             line-height: 1.6;
             margin-bottom: 25px;
-            min-height: 3em; /* 텍스트가 없어도 공간 유지 */
+            min-height: 3em;
         }
 
         .audio-controls { width: 100%; }
@@ -205,6 +204,13 @@
             link: "https://raw.githubusercontent.com/deokc/Hell_pl/main/King%20of%20Hell_04.mp3",
             duration: "3:21",
             desc: "번아웃 온 루시퍼의 도망치고 싶은 마음을 담아낸 곡."
+        },
+        {
+            title: "어서와, 달링",
+            // github.com 링크를 raw.githubusercontent.com으로 수정했습니다.
+            link: "https://raw.githubusercontent.com/deokc/Hell_pl/main/%EC%96%B4%EC%84%9C%EC%99%80%2C%20%EB%8B%AC%EB%A7%81_02.mp3",
+            duration: "3:08",
+            desc: "아스모데우스의 능글맞은 유혹. 거절은 안 받는 거 알지?"
         }
     ];
 
@@ -238,7 +244,7 @@
         const track = playlist[index];
         audio.src = track.link;
         displayTitle.textContent = track.title;
-        displayDesc.textContent = track.desc; // 설명 업데이트
+        displayDesc.textContent = track.desc;
         renderPlaylist();
         audio.play();
         playBtn.innerHTML = "&#x23F8;";
@@ -267,7 +273,9 @@
     progressContainer.onclick = (e) => {
         const width = progressContainer.clientWidth;
         const clickX = e.offsetX;
-        audio.currentTime = (clickX / width) * audio.duration;
+        if (!isNaN(audio.duration)) {
+            audio.currentTime = (clickX / width) * audio.duration;
+        }
     };
 
     audio.onended = nextTrack;
